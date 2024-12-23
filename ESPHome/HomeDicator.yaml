@@ -8,8 +8,8 @@ substitutions:
   # --------------------------
   # ENTER API AND OTA KEY HERE
   # --------------------------
-  api_key: "<api-key>"
-  ota_key: "<ota-key>"
+  api_key: !secret api_encryption_key
+  ota_key: !secret ota_password
 
   # ------------------------------
   # ADJUST YOUR WLAN SETTINGS HERE
@@ -20,28 +20,87 @@ substitutions:
   # ---------------------------------
   # ADJUST TOTAL NUMBER OF PAGES HERE
   # ---------------------------------
-  total_pages: "2" # is used to generate navigation dots and their logic (set it to your pages + 1 for the settings page)
+  total_pages: "5" # is used to generate navigation dots and their logic (set it to your pages + 1 for the settings page)
 
   # --------------
   # OTHER SETTINGS
   # --------------
   user_interface_debug_mode: "false" # Draws borders around objects and labels for layouting
+  # user_interface_debug_mode: "true" # Draws borders around objects and labels for layouting
      
 sensor:
   # ----------------------------------------------------------------------
   # ADD YOUR SENSORS HERE
   # Because of the way ESPHOME works lights, thermostats, etc also go here
   # ----------------------------------------------------------------------
+  - !include 
+      file: HomeDicator/core/templates/sensor.yaml
+      vars:
+        hass_sensor_id: "energy_import_limit" 
+  - !include 
+      file: HomeDicator/core/templates/sensor.yaml
+      vars:
+        hass_sensor_id: "energy_export_limit2" 
+  - !include 
+      file: HomeDicator/core/templates/sensor.yaml
+      vars:
+        hass_sensor_id: "energy_generation_limit" 
+  - !include 
+      file: HomeDicator/core/templates/sensor.yaml
+      vars:
+        hass_sensor_id: "energy_load_limit" 
 
   - !include 
       file: HomeDicator/core/templates/sensor.yaml
       vars:
-        hass_sensor_id: "example_sensor_id_change_me" # You can ommit the "sensor."
-        
+        hass_sensor_id: "energy_csip_aus_import_limit" 
   - !include 
-      file: HomeDicator/core/templates/climate_sensor.yaml
+      file: HomeDicator/core/templates/sensor.yaml
       vars:
-        hass_climate_id: "example_climate_id_change_me" # You can ommit the "climate."
+        hass_sensor_id: "energy_csip_aus_export_limit" 
+  - !include 
+      file: HomeDicator/core/templates/sensor.yaml
+      vars:
+        hass_sensor_id: "energy_csip_aus_generation_limit" 
+  - !include 
+      file: HomeDicator/core/templates/sensor.yaml
+      vars:
+        hass_sensor_id: "energy_csip_aus_load_limit" 
+
+  - !include 
+      file: HomeDicator/core/templates/sensor.yaml
+      vars:
+        hass_sensor_id: "energy_vpp_import_limit" 
+  - !include 
+      file: HomeDicator/core/templates/sensor.yaml
+      vars:
+        hass_sensor_id: "energy_vpp_export_limit" 
+  - !include 
+      file: HomeDicator/core/templates/sensor.yaml
+      vars:
+        hass_sensor_id: "energy_vpp_generation_limit" 
+  - !include 
+      file: HomeDicator/core/templates/sensor.yaml
+      vars:
+        hass_sensor_id: "energy_vpp_load_limit" 
+
+  - !include 
+      file: HomeDicator/core/templates/sensor.yaml
+      vars:
+        hass_sensor_id: "energy_local_import_limit" 
+  - !include 
+      file: HomeDicator/core/templates/sensor.yaml
+      vars:
+        hass_sensor_id: "energy_local_export_limit" 
+  - !include 
+      file: HomeDicator/core/templates/sensor.yaml
+      vars:
+        hass_sensor_id: "energy_local_generation_limit" 
+  - !include 
+      file: HomeDicator/core/templates/sensor.yaml
+      vars:
+        hass_sensor_id: "energy_local_load_limit" 
+
 
   # ----------------------------
   # INTERNAL SENSORS DON'T TOUCH
@@ -75,16 +134,13 @@ switch:
 
 lvgl:  
   pages:
-    # ----------------------------
-    # ADD / ADJUST YOUR PAGES HERE
-    # ----------------------------
-    - id: first_page
+    - id: page_1
       bg_opa: TRANSP
       widgets:
         - !include
             file: HomeDicator/user_interface/templates/page_title.yaml
             vars:
-              title: "Bedroom" # CHANGE PAGE TITLE HERE
+              title: "Dynamic Power Limits"
         - obj:
             styles: content_container
             layout: 
@@ -97,19 +153,178 @@ lvgl:
                   file: HomeDicator/user_interface/templates/tiles/sensor/square.yaml
                   vars:
                     color: 0xeebf41
-                    hass_sensor_id: "example_sensor_id_change_me"
-                    icon: "\U000F02E3"
-                    unit: "°C"
-                    title: "Bedroom"
+                    hass_sensor_id: "energy_import_limit"
+                    icon: "\U000F192C"
+                    unit: "kW"
+                    title: "Import Limit"
               - !include
-                  file: HomeDicator/user_interface/templates/tiles/thermostat/square.yaml
+                  file: HomeDicator/user_interface/templates/tiles/sensor/square.yaml
                   vars:
                     color: 0xeebf41
-                    hass_climate_id: "example_climate_id_change_me"
-                    min_value: 5
-                    max_value: 25
-                    title: "Living Room"
-   
+                    hass_sensor_id: "energy_export_limit2"
+                    icon: "\U000F192D"
+                    unit: "kW"
+                    title: "Export Limit"
+              - !include
+                  file: HomeDicator/user_interface/templates/tiles/sensor/square.yaml
+                  vars:
+                    color: 0xeebf41
+                    hass_sensor_id: "energy_generation_limit"
+                    icon: "\U000F0A72"
+                    unit: "kW"
+                    title: "Generation Limit"
+              - !include
+                  file: HomeDicator/user_interface/templates/tiles/sensor/square.yaml
+                  vars:
+                    color: 0xeebf41
+                    hass_sensor_id: "energy_load_limit"
+                    icon: "\U000F1903"
+                    unit: "kW"
+                    title: "Load Limit"
+
+    - id: page_2
+      bg_opa: TRANSP
+      widgets:
+        - !include
+            file: HomeDicator/user_interface/templates/page_title.yaml
+            vars:
+              title: "CSIP-Aus Dynamic Limits"
+        - obj:
+            styles: content_container
+            layout: 
+              type: FLEX
+              flex_flow: ROW_WRAP
+              flex_align_main: LV_FLEX_ALIGN_START
+              flex_align_cross: CENTER
+            widgets:
+              - !include
+                  file: HomeDicator/user_interface/templates/tiles/sensor/wide_half_height.yaml
+                  vars:
+                    color: 0xeebf41
+                    hass_sensor_id: "energy_csip_aus_import_limit"
+                    icon: "\U000F192C"
+                    unit: "kW"
+                    title: "Import Limit"
+              - !include
+                  file: HomeDicator/user_interface/templates/tiles/sensor/wide_half_height.yaml
+                  vars:
+                    color: 0xeebf41
+                    hass_sensor_id: "energy_csip_aus_export_limit"
+                    icon: "\U000F192D"
+                    unit: "kW"
+                    title: "Export Limit"
+              - !include
+                  file: HomeDicator/user_interface/templates/tiles/sensor/wide_half_height.yaml
+                  vars:
+                    color: 0xeebf41
+                    hass_sensor_id: "energy_csip_aus_generation_limit"
+                    icon: "\U000F0A72"
+                    unit: "kW"
+                    title: "Generation Limit"
+              - !include
+                  file: HomeDicator/user_interface/templates/tiles/sensor/wide_half_height.yaml
+                  vars:
+                    color: 0xeebf41
+                    hass_sensor_id: "energy_csip_aus_load_limit"
+                    icon: "\U000F1903"
+                    unit: "kW"
+                    title: "Load Limit"
+
+    - id: page_3
+      bg_opa: TRANSP
+      widgets:
+        - !include
+            file: HomeDicator/user_interface/templates/page_title.yaml
+            vars:
+              title: "VPP Dynamic Limits"
+        - obj:
+            styles: content_container
+            layout: 
+              type: FLEX
+              flex_flow: ROW_WRAP
+              flex_align_main: LV_FLEX_ALIGN_START
+              flex_align_cross: CENTER
+            widgets:
+              - !include
+                  file: HomeDicator/user_interface/templates/tiles/sensor/wide_half_height.yaml
+                  vars:
+                    color: 0x41eebf
+                    hass_sensor_id: "energy_vpp_import_limit"
+                    icon: "\U000F192C"
+                    unit: "kW"
+                    title: "Import Limit"
+              - !include
+                  file: HomeDicator/user_interface/templates/tiles/sensor/wide_half_height.yaml
+                  vars:
+                    color: 0x41eebf
+                    hass_sensor_id: "energy_vpp_export_limit"
+                    icon: "\U000F192D"
+                    unit: "kW"
+                    title: "Export Limit"
+              - !include
+                  file: HomeDicator/user_interface/templates/tiles/sensor/wide_half_height.yaml
+                  vars:
+                    color: 0x41eebf
+                    hass_sensor_id: "energy_vpp_generation_limit"
+                    icon: "\U000F0A72"
+                    unit: "kW"
+                    title: "Generation Limit"
+              - !include
+                  file: HomeDicator/user_interface/templates/tiles/sensor/wide_half_height.yaml
+                  vars:
+                    color: 0x41eebf
+                    hass_sensor_id: "energy_vpp_load_limit"
+                    icon: "\U000F1903"
+                    unit: "kW"
+                    title: "Load Limit"
+
+    - id: page_4
+      bg_opa: TRANSP
+      widgets:
+        - !include
+            file: HomeDicator/user_interface/templates/page_title.yaml
+            vars:
+              title: "Local Dynamic Limits"
+        - obj:
+            styles: content_container
+            layout: 
+              type: FLEX
+              flex_flow: ROW_WRAP
+              flex_align_main: LV_FLEX_ALIGN_START
+              flex_align_cross: CENTER
+            widgets:
+              - !include
+                  file: HomeDicator/user_interface/templates/tiles/sensor/wide_half_height.yaml
+                  vars:
+                    color: 0xbf41ee
+                    hass_sensor_id: "energy_local_import_limit"
+                    icon: "\U000F192C"
+                    unit: "kW"
+                    title: "Import Limit"
+              - !include
+                  file: HomeDicator/user_interface/templates/tiles/sensor/wide_half_height.yaml
+                  vars:
+                    color: 0xbf41ee
+                    hass_sensor_id: "energy_local_export_limit"
+                    icon: "\U000F192D"
+                    unit: "kW"
+                    title: "Export Limit"
+              - !include
+                  file: HomeDicator/user_interface/templates/tiles/sensor/wide_half_height.yaml
+                  vars:
+                    color: 0xbf41ee
+                    hass_sensor_id: "energy_local_generation_limit"
+                    icon: "\U000F0A72"
+                    unit: "kW"
+                    title: "Generation Limit"
+              - !include
+                  file: HomeDicator/user_interface/templates/tiles/sensor/wide_half_height.yaml
+                  vars:
+                    color: 0xbf41ee
+                    hass_sensor_id: "energy_local_load_limit"
+                    icon: "\U000F1903"
+                    unit: "kW"
+                    title: "Load Limit"
 
 
    # ---------------------------
